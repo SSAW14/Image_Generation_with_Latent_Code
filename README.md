@@ -1,1 +1,1 @@
-# Image_Generation_with_Latent_Code
+# Diverse Conditional Image Generation by Stochastic Regression with Latent Drop-Out Codes
