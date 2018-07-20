@@ -1,0 +1,16 @@
+train_net: "./model/generator.prototxt"
+
+lr_policy: "poly"
+power: 0.9
+base_lr: 1e-4
+
+iter_size: 1
+average_loss: 20
+display: 1000
+max_iter: 500000
+momentum: 0.9
+momentum2: 0.999
+weight_decay: 0.0005
+
+solver_mode: GPU
+solver_type: ADAM

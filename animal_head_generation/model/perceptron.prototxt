@@ -1,0 +1,586 @@
+force_backward: true
+
+input: "data"
+input_shape {
+  dim: 1
+  dim: 3
+  dim: 97
+  dim: 97
+}
+
+input: "target_data"
+input_shape {
+  dim: 1
+  dim: 3
+  dim: 97
+  dim: 97
+}
+
+input: "mask1"
+input_shape {
+  dim: 1
+  dim: 3
+  dim: 97
+  dim: 97
+}
+
+input: "mask2"
+input_shape {
+  dim: 1
+  dim: 64
+  dim: 97
+  dim: 97
+}
+
+input: "mask3"
+input_shape {
+  dim: 1
+  dim: 128
+  dim: 49
+  dim: 49
+}
+
+input: "mask4"
+input_shape {
+  dim: 1
+  dim: 256
+  dim: 25
+  dim: 25
+}
+
+input: "mask5"
+input_shape {
+  dim: 1
+  dim: 512
+  dim: 13
+  dim: 13
+}
+
+input: "mask6"
+input_shape {
+  dim: 1
+  dim: 512
+  dim: 13
+  dim: 13
+}
+
+layer {
+ name: 'loss1'
+ type: "Python"
+ bottom: "data"
+ bottom: "target_data"
+ bottom: "mask1"
+ top: 'Perceptualloss1'
+ loss_weight: 1
+ python_param {
+   module: "python_loss_layers"
+   layer: "L1LossMaskLayer"
+   param_str: "{\'loss_weight\': 1.0}"
+ }
+}
+
+layer {
+  name: "concat"
+  type: "Concat"
+  bottom: "data"
+  bottom: "target_data"
+  top: "data_input"
+  concat_param {
+    axis: 0
+  }
+}
+
+###################### DeepLab ####################
+layer {
+  name: "conv1_1"
+  type: "Convolution"
+  bottom: "data_input"
+  top: "conv1_1"
+  param {
+    lr_mult: 1
+    decay_mult: 1
+  }
+  param {
+    lr_mult: 2
+    decay_mult: 0
+  }
+  convolution_param {
+    num_output: 64
+    pad: 1
+    kernel_size: 3
+  }
+}
+layer {
+  name: "relu1_1"
+  type: "ReLU"
+  bottom: "conv1_1"
+  top: "conv1_1"
+}
+layer {
+  name: "conv1_2"
+  type: "Convolution"
+  bottom: "conv1_1"
+  top: "conv1_2"
+  param {
+    lr_mult: 1
+    decay_mult: 1
+  }
+  param {
+    lr_mult: 2
+    decay_mult: 0
+  }
+  convolution_param {
+    num_output: 64
+    pad: 1
+    kernel_size: 3
+  }
+}
+
+layer {
+  name: "slice"
+  type: "Slice"
+  bottom: "conv1_2"
+  top: "conv1_2_data"
+  top: "conv1_2_target"
+  slice_param {
+    axis: 0
+    slice_point: 1
+  }
+}
+layer {
+ name: 'loss2'
+ type: "Python"
+ bottom: "conv1_2_data"
+ bottom: "conv1_2_target"
+ bottom: "mask2"
+ top: 'Perceptualloss2'
+ loss_weight: 1
+#0.625
+ python_param {
+   module: "python_loss_layers"
+   layer: "L1LossMaskLayer"
+   param_str: "{\'loss_weight\': 1}"
+ }
+}
+
+
+layer {
+  name: "relu1_2"
+  type: "ReLU"
+  bottom: "conv1_2"
+  top: "conv1_2_relu"
+}
+
+layer {
+  name: "pool1"
+  type: "Pooling"
+  bottom: "conv1_2_relu"
+  top: "pool1"
+  pooling_param {
+    pool: AVE
+    kernel_size: 3
+    stride: 2
+    pad: 1
+  }
+}
+layer {
+  name: "conv2_1"
+  type: "Convolution"
+  bottom: "pool1"
+  top: "conv2_1"
+  param {
+    lr_mult: 1
+    decay_mult: 1
+  }
+  param {
+    lr_mult: 2
+    decay_mult: 0
+  }
+  convolution_param {
+    num_output: 128
+    pad: 1
+    kernel_size: 3
+  }
+}
+layer {
+  name: "relu2_1"
+  type: "ReLU"
+  bottom: "conv2_1"
+  top: "conv2_1"
+}
+layer {
+  name: "conv2_2"
+  type: "Convolution"
+  bottom: "conv2_1"
+  top: "conv2_2"
+  param {
+    lr_mult: 1
+    decay_mult: 1
+  }
+  param {
+    lr_mult: 2
+    decay_mult: 0
+  }
+  convolution_param {
+    num_output: 128
+    pad: 1
+    kernel_size: 3
+  }
+}
+
+
+layer {
+  name: "slice"
+  type: "Slice"
+  bottom: "conv2_2"
+  top: "conv2_2_data"
+  top: "conv2_2_target"
+  slice_param {
+    axis: 0
+    slice_point: 1
+  }
+}
+layer {
+ name: 'loss3'
+ type: "Python"
+ bottom: "conv2_2_data"
+ bottom: "conv2_2_target"
+ bottom: "mask3"
+ top: 'Perceptualloss3'
+ loss_weight: 0.4347826086956522
+#0.4347826086956522
+ python_param {
+   module: "python_loss_layers"
+   layer: "L1LossMaskLayer"
+   param_str: "{\'loss_weight\': 0.4347826086956522}"
+ }
+}
+
+
+layer {
+  name: "relu2_2"
+  type: "ReLU"
+  bottom: "conv2_2"
+  top: "conv2_2_relu"
+}
+layer {
+  name: "pool2"
+  type: "Pooling"
+  bottom: "conv2_2_relu"
+  top: "pool2"
+  pooling_param {
+    pool: AVE
+    kernel_size: 3
+    stride: 2
+    pad: 1
+  }
+}
+
+
+layer {
+  name: "conv3_1"
+  type: "Convolution"
+  bottom: "pool2"
+  top: "conv3_1"
+  param {
+    lr_mult: 1
+    decay_mult: 1
+  }
+  param {
+    lr_mult: 2
+    decay_mult: 0
+  }
+  convolution_param {
+    num_output: 256
+    pad: 1
+    kernel_size: 3
+  }
+}
+layer {
+  name: "relu3_1"
+  type: "ReLU"
+  bottom: "conv3_1"
+  top: "conv3_1"
+}
+layer {
+  name: "conv3_2"
+  type: "Convolution"
+  bottom: "conv3_1"
+  top: "conv3_2"
+  param {
+    lr_mult: 1
+    decay_mult: 1
+  }
+  param {
+    lr_mult: 2
+    decay_mult: 0
+  }
+  convolution_param {
+    num_output: 256
+    pad: 1
+    kernel_size: 3
+  }
+}
+
+layer {
+  name: "slice"
+  type: "Slice"
+  bottom: "conv3_2"
+  top: "conv3_2_data"
+  top: "conv3_2_target"
+  slice_param {
+    axis: 0
+    slice_point: 1
+  }
+}
+layer {
+ name: 'loss4'
+ type: "Python"
+ bottom: "conv3_2_data"
+ bottom: "conv3_2_target"
+ bottom: "mask4"
+ top: 'Perceptualloss4'
+ loss_weight: 0.5555555555555
+#0.5555555555555
+ python_param {
+   module: "python_loss_layers"
+   layer: "L1LossMaskLayer"
+   param_str: "{\'loss_weight\': 0.5555555555555}"
+ }
+}
+
+
+layer {
+  name: "relu3_2"
+  type: "ReLU"
+  bottom: "conv3_2"
+  top: "conv3_2_relu"
+}
+layer {
+  name: "conv3_3"
+  type: "Convolution"
+  bottom: "conv3_2_relu"
+  top: "conv3_3"
+  param {
+    lr_mult: 1
+    decay_mult: 1
+  }
+  param {
+    lr_mult: 2
+    decay_mult: 0
+  }
+  convolution_param {
+    num_output: 256
+    pad: 1
+    kernel_size: 3
+  }
+}
+layer {
+  name: "relu3_3"
+  type: "ReLU"
+  bottom: "conv3_3"
+  top: "conv3_3"
+}
+layer {
+  name: "pool3"
+  type: "Pooling"
+  bottom: "conv3_3"
+  top: "pool3"
+  pooling_param {
+    pool: AVE
+    kernel_size: 3
+    stride: 2
+    pad: 1
+  }
+}
+
+layer {
+  name: "conv4_1"
+  type: "Convolution"
+  bottom: "pool3"
+  top: "conv4_1"
+  param {
+    lr_mult: 1
+    decay_mult: 1
+  }
+  param {
+    lr_mult: 2
+    decay_mult: 0
+  }
+  convolution_param {
+    num_output: 512
+    pad: 1
+    kernel_size: 3
+  }
+}
+layer {
+  name: "relu4_1"
+  type: "ReLU"
+  bottom: "conv4_1"
+  top: "conv4_1"
+}
+layer {
+  name: "conv4_2"
+  type: "Convolution"
+  bottom: "conv4_1"
+  top: "conv4_2"
+  param {
+    lr_mult: 1
+    decay_mult: 1
+  }
+  param {
+    lr_mult: 2
+    decay_mult: 0
+  }
+  convolution_param {
+    num_output: 512
+    pad: 1
+    kernel_size: 3
+  }
+}
+
+layer {
+  name: "slice"
+  type: "Slice"
+  bottom: "conv4_2"
+  top: "conv4_2_data"
+  top: "conv4_2_target"
+  slice_param {
+    axis: 0
+    slice_point: 1
+  }
+}
+layer {
+ name: 'loss5'
+ type: "Python"
+ bottom: "conv4_2_data"
+ bottom: "conv4_2_target"
+ bottom: "mask5" 
+ top: 'Perceptualloss5'
+ loss_weight: 0.3571428571428571
+#0.3571428571428571
+ python_param {
+   module: "python_loss_layers"
+   layer: "L1LossMaskLayer"
+   param_str: "{\'loss_weight\': 0.3571428571428571}"
+ }
+}
+
+layer {
+  name: "relu4_2"
+  type: "ReLU"
+  bottom: "conv4_2"
+  top: "conv4_2_relu"
+}
+layer {
+  name: "conv4_3"
+  type: "Convolution"
+  bottom: "conv4_2_relu"
+  top: "conv4_3"
+  param {
+    lr_mult: 1
+    decay_mult: 1
+  }
+  param {
+    lr_mult: 2
+    decay_mult: 0
+  }
+  convolution_param {
+    num_output: 512
+    pad: 1
+    kernel_size: 3
+  }
+}
+layer {
+  name: "relu4_3"
+  type: "ReLU"
+  bottom: "conv4_3"
+  top: "conv4_3"
+}
+layer {
+  bottom: "conv4_3"
+  top: "pool4"
+  name: "pool4"
+  type: "Pooling"
+  pooling_param {
+    pool: AVE
+    kernel_size: 3
+    pad: 1
+    stride: 1
+  }
+}
+
+
+
+layer {
+  name: "conv5_1"
+  type: "Convolution"
+  bottom: "pool4"
+  top: "conv5_1"
+  param {
+    lr_mult: 1
+    decay_mult: 1
+  }
+  param {
+    lr_mult: 2
+    decay_mult: 0
+  }
+  convolution_param {
+    num_output: 512
+    pad: 1
+    kernel_size: 3
+  }
+}
+layer {
+  name: "relu5_1"
+  type: "ReLU"
+  bottom: "conv5_1"
+  top: "conv5_1"
+}
+layer {
+  name: "conv5_2"
+  type: "Convolution"
+  bottom: "conv5_1"
+  top: "conv5_2"
+  param {
+    lr_mult: 1
+    decay_mult: 1
+  }
+  param {
+    lr_mult: 2
+    decay_mult: 0
+  }
+  convolution_param {
+    num_output: 512
+    pad: 1
+    kernel_size: 3
+  }
+}
+
+layer {
+  name: "slice"
+  type: "Slice"
+  bottom: "conv5_2"
+  top: "conv5_2_data"
+  top: "conv5_2_target"
+  slice_param {
+    axis: 0
+    slice_point: 1
+  }
+}
+layer {
+ name: 'loss6'
+ type: "Python"
+ bottom: "conv5_2_data"
+ bottom: "conv5_2_target"
+ bottom: "mask6"
+ top: 'Perceptualloss6'
+ loss_weight: 12.5
+#12.5
+ python_param {
+   module: "python_loss_layers"
+   layer: "L1LossMaskLayer"
+   param_str: "{\'loss_weight\': 12.5}"
+ }
+}
+
