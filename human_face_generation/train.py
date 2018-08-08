@@ -185,7 +185,7 @@ def get_data(data_id):
     landmarks_display = np.zeros((num,3,128,128),dtype='float')
 
     for i in range(num):
-       data = np.array(Image.open('/BS/3d_deep_learning/work/dataset/lfw/crop_face128_imgs/%05d.png'%(data_id[i])))
+       data = np.array(Image.open('../data/LFW/train/imgs/%05d.png'%(data_id[i])))
        if len(data.shape) == 2:
          data = np.repeat(data.reshape(128,128,1),3,axis=2)
 
@@ -196,7 +196,7 @@ def get_data(data_id):
        data_original[i,:,:,:] = data
        data_output[i,:,:,:] = data2
 
-       landmarks = np.load('/BS/3d_deep_learning/work/dataset/lfw/landmarks128/%05d.npy'%(data_id[i]))
+       landmarks = np.load('../data/LFW/train/landmarks/%05d.npy'%(data_id[i]))
        landmarks[landmarks > 127] = 127
        landmarks[landmarks < 0] = 0
 
@@ -251,7 +251,7 @@ for it in range(start_snapshot, max_iter):
   sample_id, sample_lst = get_id(sample_lst, samples, 1)
 
   # neighbor searching for neighbor enhanced loss function
-  sample_nn = scipy.io.loadmat('/BS/3d_deep_learning/work/dataset/lfw/face128_nn/%05d.mat'%sample_id[0])
+  sample_nn = scipy.io.loadmat('../data/LFW/train/neighbors/%05d.mat'%sample_id[0])
   sample_nn = sample_nn['nn']
 
   pos = np.argwhere(sample_nn[1,:] < 300)

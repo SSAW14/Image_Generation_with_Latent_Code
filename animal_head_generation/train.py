@@ -153,7 +153,7 @@ generator = caffe.AdamSolver('./solver_prototxt/solver_generator.prototxt')
 perceptron = caffe.AdamSolver('./solver_prototxt/solver_perceptron.prototxt')
 
 #load from pre-trained model
-perceptron.net.copy_from('./VGG_ILSVRC_16_layers.caffemodel')
+perceptron.net.copy_from('../VGG_ILSVRC_16_layers.caffemodel')
 
 # bilinear interpolation for deconvolutions
 interp_layers = [k for k in generator.net.params.keys() if 'up' in k]
@@ -185,15 +185,15 @@ def get_data(data_id):
     normal_map = np.zeros((num,3,96,96),dtype='float')
 
     for i in range(num):
-       data = np.array(Image.open('/BS/3d_deep_learning/work/dataset/head/%04d.png'%(data_id[i])))
+       data = np.array(Image.open('../data/Oxford-IIIT Pet/imgs/%04d.png'%(data_id[i])))
        if len(data.shape) == 2:
          data = np.repeat(data.reshape(96,96,1),3,axis=2)
 
-       normal = scipy.io.loadmat('/BS/3d_deep_learning/work/dataset/normal/%04d.mat'%(data_id[i]))
+       normal = scipy.io.loadmat('../data/Oxford-IIIT Pet/normals/%04d.mat'%(data_id[i]))
        normal = normal['predns']
        normal = normal.transpose([2, 0, 1])
 
-       normal_vis = np.array(Image.open('/BS/3d_deep_learning/work/dataset/normal/%04d.png'%(data_id[i])))
+       normal_vis = np.array(Image.open('../data/Oxford-IIIT Pet/normals/%04d.png'%(data_id[i])))
        normal_vis = normal_vis.transpose([2, 0, 1])
 
        data = data[:,:,::-1]

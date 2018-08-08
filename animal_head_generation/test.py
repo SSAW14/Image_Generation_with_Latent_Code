@@ -49,7 +49,7 @@ code1 = np.concatenate((code1,code_new1),axis = 0)
 code2 = np.concatenate((code2,code_new2),axis = 0)
 
 for imgs_iter in range(len(samples)):
-  normal = scipy.io.loadmat('/BS/3d_deep_learning/work/dataset/normal/%04d.mat'%(samples[imgs_iter]))
+  normal = scipy.io.loadmat('../data/Oxford-IIIT Pet/normals/%04d.mat'%(samples[imgs_iter]))
   normal = normal['predns']
   normal = normal.transpose([2, 0, 1])
 
